@@ -15,16 +15,25 @@
   let cameraHeight = -20;
   let cameraDepth = 100;
   let autoRotate = false;
+
+  // in millimeters
+  let unit = 19.05;
+  let margin = 0.525;
+  let degrees = 90;
 </script>
 
+<input type=number bind:value={unit} min=5 max=30>
+<!-- <input type=number bind:value={margin} min=0 max=1 step=0.005> -->
+<input type=number bind:value={degrees} min=45 max=90>
+<br/>
 <Canvas let:sti w={500} h={500}>
   <Scene {sti} let:scene id="scene1" props={{ background: 0xedf2f7 }}>
     <PerspectiveCamera {scene} id="cam1" pos={[cameraWidth, cameraHeight, cameraDepth]} lookAt={[0, 0, 0]} />
     <AmbientLight {scene} intensity={1.25} />
     <DirectionalLight {scene} pos={[60, 60, 60]} />
     <OrbitControls {scene} autoRotate={autoRotate} enableDamping />
-    <Keycap scene={scene} />
-    <Floor scene={scene} />
+    <Keycap scene={scene} unit={unit} margin={margin} degrees={degrees} />
+    <!-- <Floor scene={scene} /> -->
   </Scene>
 
   <WebGLRenderer
