@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Sphere from './Sphere.svelte';
   import {
     ExtrudeGeometry,
     Shape,
@@ -7,45 +8,49 @@
     TextGeometry,
     FontLoader,
   } from "svelthree";
-  import { tan } from './utils';
+  import { toRadians } from './utils';
   import { onMount } from 'svelte';
 
   export let scene;
-  export let unit; // keycap base unit. A letter keycap is 1u
+  // dimensions
+  export let unit; // keycap base unit in mm.
+  export let ratio = 1; // ratio compared to the unit. a letter is 1u
   export let margin;
   export let degrees; // angle of the right slope in the side profile
+  export let legend; // text to render on top
   let width, height, depth;
-  width = height = depth = (unit - margin);
+  width = height = depth = (unit * ratio - margin);
 
   // position
-  let x = 0;
-  let y = 0;
-  let z = depth / 2.0 + 0.05 // fudge it so we don't flicker
+  export let x;
+  export let y;
+  export let z;
 
   /**
-   *         topWidth
-   *         _____
-   *        |      \
-   * height |       \
-   *   (0,0)|________\  <-- degrees
-   *          width
+   *
+   *         (x2,t) _______ (x3,s)
+   *               /|     | \
+   *            l / | t   |  \ r
+   *        (x,y)/__|_____|___\ (x4,y)
+   *                   w
    */
-  function getProfile(height: number, width: number, degrees:number) {
+  function getProfile(x: number, y:number, w: number, l: number, t: number, r: number, s: number) {
     // special thanks to Haley for the maths
-    let topWidth = width * (1 - (1 / tan(degrees)));
+    const x2 = Math.sqrt((l*l) - (t*t));
+    const x3 = w - Math.sqrt((r*r) - (s*s));
+    const x4 = x + w;
     // describe profile of the keycap
     let shape = new Shape();
-    shape.moveTo(0, 0);
-    shape.lineTo(0, height);
-    shape.lineTo(topWidth, height);
-    shape.lineTo(width, 0);
-    shape.lineTo(0, 0);
+    shape.moveTo(x, y);
+    shape.lineTo(x2, t);
+    shape.lineTo(x3, s);
+    shape.lineTo(x4, y);
+    shape.lineTo(x, y);
 
     return shape;
   }
 
   function make3d(profile: Shape, depth) {
-    // make 3D
     const extrudeSettings = {
       steps: 2,
       depth: depth,
@@ -54,7 +59,8 @@
     return new ExtrudeGeometry(profile, extrudeSettings);
   }
 
-  $: profile = getProfile(height, width, degrees);
+  // TODO: use real numbers
+  $: profile = getProfile(x, y, width, 11, 10, 8, 7);
   $: geometry = make3d(profile, depth);
   let material = new MeshStandardMaterial();
 
@@ -64,11 +70,13 @@
   const fontSize = 4;
   onMount(async () => {
     loader.load( 'fonts/Roboto_Regular.json', (loadedFont) => {
-      text = new TextGeometry('', {
+      text = new TextGeometry(legend, {
         font: loadedFont,
         size: 4,
         height: 0.1,
       });
+      text.rotateX(toRadians(-90));
+      text.rotateY(toRadians(90));
     });
   });
 </script>
@@ -89,7 +97,7 @@
     geometry={text}
     material={new MeshStandardMaterial()}
     mat={{ color: 0x000000 }}
-    pos={[x - fontSize / 2, y - fontSize / 2, depth]}
+    pos={[x + (width / 2) - fontSize, y + height + 0.005, z + depth / 2]}
     scale={[1, 1, 1]}
   />
 {/if}
