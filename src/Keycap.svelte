@@ -21,26 +21,22 @@
   export let y;
   export let z;
 
-  /**
-   *
-   *         (x2,t) _______ (x3,s)
-   *               /|     | \
-   *            l / | t   |  \ r
-   *        (x,y)/__|_____|___\ (x4,y)
-   *                   w
-   */
-   function getProfile(x: number, y:number, w: number, l: number, t: number, r: number, s: number) {
+  function getProfile(x: number, y:number, w: number, l: number, t: number, r: number, s: number) {
     // special thanks to Haley for the maths
-    const x2 = Math.sqrt((l*l) - (t*t));
-    const x3 = w - Math.sqrt((r*r) - (s*s));
-    const x4 = x + w;
-    // describe profile of the keycap
+    const x1 = 2.35;
+    const x3 = 18;
+    const x2 = x3 - x1;
+    const y1  = 11;
+    const y2  = y1;
+    const y3 = y;
+
+    // describe profile of the front of the keycap (the face looking at the spacebar)
     let shape = new Shape();
-    shape.moveTo(x, y);
-    shape.lineTo(x2, t);
-    shape.lineTo(x3, s);
-    shape.lineTo(x4, y);
-    shape.lineTo(x, y);
+    shape.moveTo(x, y); // bottom left
+    shape.lineTo(x1, y1); // top left
+    shape.quadraticCurveTo(x3 / 2, y2 / 1.2, x2, y2); // top right
+    shape.lineTo(x3, y3); // bottom right
+    shape.lineTo(x, y); // bottom left
 
     return shape;
   }
@@ -54,7 +50,6 @@
     return new ExtrudeGeometry(profile, extrudeSettings);
   }
 
-  // TODO: use real numbers
   $: profile = getProfile(x, y, width, 11, 10, 8, 7);
   $: geometry = make3d(profile, depth);
   let material = new MeshStandardMaterial();

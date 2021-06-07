@@ -40,7 +40,7 @@
     <AmbientLight {scene} intensity={1.25} />
     <DirectionalLight {scene} pos={[60, 60, 60]} />
     <OrbitControls {scene} {autoRotate} enableDamping />
-    <Keycap {scene} {unit} {margin} {degrees} x={0} y={0} z={0} legend={'A'} />
+    <Keycap {scene} {unit} {margin} {degrees} x={0} y={0} z={0} legend={'ESC'} />
   </Scene>
 
   <WebGLRenderer

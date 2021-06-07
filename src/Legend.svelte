@@ -18,7 +18,7 @@
   export let width;
   export let height;
   export let depth;
-  const fontSize = 4;
+  const fontSize = 2.5;
 
   // load font
   const loader = new FontLoader();
@@ -27,11 +27,11 @@
     loader.load( 'fonts/Roboto_Regular.json', (loadedFont) => {
       text = new TextGeometry(legend, {
         font: loadedFont,
-        size: 4,
+        size: fontSize,
         height: 0.1,
       });
       text.rotateX(toRadians(-90));
-      text.rotateY(toRadians(90));
+      // text.rotateY(toRadians(90));
     });
   });
 </script>
